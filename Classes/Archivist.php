@@ -15,6 +15,9 @@ use Neos\Flow\Annotations as Flow;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\Flow\Log\ThrowableStorageInterface;
 use Neos\Flow\Log\Utility\LogEnvironment;
+use Neos\Neos\Ui\Domain\Model\Feedback\Messages\Info;
+use Neos\Neos\Ui\Domain\Model\Feedback\Operations\NodeCreated;
+use Neos\Neos\Ui\Domain\Model\Feedback\Operations\Redirect;
 use Neos\Neos\Ui\Domain\Model\Feedback\Operations\UpdateNodeInfo;
 use Neos\Neos\Ui\Domain\Model\Feedback\Operations\UpdateNodePath;
 use Neos\Neos\Ui\Domain\Model\FeedbackCollection;
@@ -268,6 +271,10 @@ class Archivist
      */
     private function sendNodeMovedFeedback(NodeInterface $hierarchyNode, NodeInterface $affectedNode, string $oldContextPath, string $newContextPath): void
     {
+        $created = new NodeCreated();
+        $created->setNode($affectedNode);
+        $this->feedbackCollection->add($created);
+
         $updateNodeInfo = new UpdateNodeInfo();
         $updateNodeInfo->setNode($hierarchyNode);
         $this->feedbackCollection->add($updateNodeInfo);
@@ -280,6 +287,10 @@ class Archivist
         $updateNodePath->setOldContextPath($oldContextPath);
         $updateNodePath->setNewContextPath($newContextPath);
         $this->feedbackCollection->add($updateNodePath);
+
+        $redirect = new Redirect();
+        $redirect->setNode($affectedNode);
+        $this->feedbackCollection->add($redirect);
     }
 }
 
